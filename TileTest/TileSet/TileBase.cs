@@ -9,7 +9,7 @@
 
         protected List<string> _temp = new List<string>() { "Road" };
 
-        protected List<string> _blank = new List<string>() { "Blank", "Road" };
+        protected List<string> _blank = new List<string>() { "Blank" };
 
         public TileBase(int xLocation, int yLocation)
         {

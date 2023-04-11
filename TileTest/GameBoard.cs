@@ -11,7 +11,7 @@ namespace TileTest
 
         private List<TileBase> _board;
 
-        private List<TileTypes> _tiles;
+        private List<TileBase> _tilesBucket;
 
         public GameBoard(int width, int height)
         {
@@ -25,19 +25,20 @@ namespace TileTest
 
             _board = new List<TileBase>();
 
-            _tiles = new List<TileTypes>
+            _tilesBucket = new List<TileBase>()
             {
-                TileTypes.T,
-                TileTypes.Line,
-                TileTypes.Curve,
-                TileTypes.Blank
+                new BlankTile(0,0),
+                new CurveTile(0,0),
+                new BlankTile(0,0),
+                new LineTile(0,0),
+                new TTile(0,0)
             };
 
-            for (int i = 0; i < Width; i++)
+            for (int i = 0; i < Height; i++)
             {
-                for (int j = 0; j < Height; j++)
+                for (int j = 0; j < Width; j++)
                 {
-                    _board.Add(new BlankTile(i, j));
+                    _board.Add(new BlankTile(j, i));
                 }
             }
 
@@ -46,105 +47,57 @@ namespace TileTest
 
         public void GenerateTiles()
         {
-            for (int x = 0; x < Width; x++)
+            var xIndex = 0;
+            var yIndex = 0;
+
+            var startingTile = GetTile(0, 0);
+            _board.Remove(startingTile);
+            _board.Insert(0, new LineTile(xIndex, yIndex));
+            xIndex++;
+
+            for (int y = yIndex; y < Height; y++)
             {
-                for (int y = 0; y < Height; y++)
+                for (int x = xIndex; x < Width; x++)
                 {
-                    // Get the tile we are trying to define
                     var selectedTile = GetTile(x, y);
 
-                    // Get all surrounding tiles 
-                    
-                    // Left
-                    var left = GetTile(x, y - 1);
-
-                    // Right
-                    var right = GetTile(x, y + 1);
-
-                    // Up 
-                    var top = GetTile(x - 1, y);
-
-                    // Down
-                    var bottom = GetTile(x + 1, y);
-
-                    var blank = "Blank";
-                    var potentialLeft = blank;
-                    var potentialRight = blank;
-                    var potentialBottom = blank;
-                    var potentialTop = blank;
-
-                    // Find the next tile based on which sides are visible
-                    if (left != null)
+                    if (selectedTile != null)
                     {
-                        // Get the left right side of the left hand tile
-                        var rightSide = left.Sides.FirstOrDefault(x => x.Side == SideName.Right);
-                        if (rightSide != null)
+                        // Get surrounding tiles
+
+                        // Left tile 
+                        var leftTile = GetTile(x - 1, y);
+
+                        // Right tile 
+                        var rightTile = GetTile(x + 1, y);
+
+                        // Top tile 
+                        var topTile = GetTile(x, y + 1);
+
+                        // Bottom tile 
+                        var bottomTile = GetTile(x, y - 1);
+
+                        if (leftTile != null)
                         {
-                            potentialLeft = rightSide.GetRandomTileSet();
+                            // we have a left tile and so what constraints do I have?
+                            var rightTest = leftTile.Sides.FirstOrDefault(s => s.Side == SideName.Right);
+
+                            if (rightTest != null)
+                            {
+                                if (rightTest.Connectable)
+                                {
+                                    var test = rightTest.PossibleConnections;
+                                }
+                            }
                         }
                     }
-
-                    if (right != null)
-                    {
-                        // Get the left right side of the left hand tile
-                        var leftSide = right.Sides.FirstOrDefault(x => x.Side == SideName.Left);
-                        if (leftSide != null)
-                        {
-                            potentialRight = leftSide.GetRandomTileSet();
-                        }
-                    }
-
-                    if (top != null)
-                    {
-                        // Get the left right side of the left hand tile
-                        var bottomSide = top.Sides.FirstOrDefault(x => x.Side == SideName.Bottom);
-                        if (bottomSide != null)
-                        {
-                            potentialBottom = bottomSide.GetRandomTileSet();
-                        }
-                    }
-
-                    if (bottom != null)
-                    {
-                        // Get the left right side of the left hand tile
-                        var topSide = bottom.Sides.FirstOrDefault(x => x.Side == SideName.Top);
-                        if (topSide != null)
-                        {
-                            potentialTop = topSide.GetRandomTileSet();
-                        }
-                    }
-
-
-
-                    Debug.WriteLine("Looking for a tile with the following attributes :" +potentialLeft + ", "+potentialRight+", "+potentialTop+", "+potentialBottom);
                 }
             }
-            
-            Debug.WriteLine("Getting here");
         }
 
         private TileBase GetTile(int x, int y)
         {
             return _board.FirstOrDefault(tile => tile.XLocation == x && tile.YLocation == y);
-        }
-
-        private TileBase GetRandomTileFromTileSet(int x, int y)
-        {
-            var tiles = Enum.GetValues(typeof(TileTypes));
-            var random = new Random();
-            TileTypes selected = (TileTypes)tiles.GetValue(random.Next(tiles.Length));
-
-            switch (selected) 
-            {
-                case TileTypes.T:
-                    return new TTile(x, y);
-                case TileTypes.Line:
-                    return new LineTile(x, y);
-                case TileTypes.Curve:
-                    return new CurveTile(x, y);
-                default:
-                    return new BlankTile(x, y);
-            }
         }
     }
 }
