@@ -9,7 +9,7 @@ namespace TileTest
         
         public int Height { get; private set; }
 
-        private List<TileBase> _board;
+        private List<Cell> _board;
 
         private List<TileBase> _tilesBucket;
 
@@ -23,81 +23,69 @@ namespace TileTest
             Width = width;
             Height = height;
 
-            _board = new List<TileBase>();
-
-            _tilesBucket = new List<TileBase>()
-            {
-                new BlankTile(0,0),
-                new CurveTile(0,0),
-                new BlankTile(0,0),
-                new LineTile(0,0),
-                new TTile(0,0)
-            };
+            _board = new List<Cell>();
 
             for (int i = 0; i < Height; i++)
             {
-                for (int j = 0; j < Width; j++)
+                for (int j = 0; j < Width; j++) 
                 {
-                    _board.Add(new BlankTile(j, i));
+                    _board.Add(new Cell(j, i));
                 }
             }
 
-            GenerateTiles();
+            Collapse(1,0);
+
+            Debug.WriteLine("Getting here");
         }
 
-        public void GenerateTiles()
+        private void Collapse(int x, int y)
         {
-            var xIndex = 0;
-            var yIndex = 0;
+            // Get number of cells with entropy > 1
+            // Continue loop whilst this is greater than 1
 
-            var startingTile = GetTile(0, 0);
-            _board.Remove(startingTile);
-            _board.Insert(0, new LineTile(xIndex, yIndex));
-            xIndex++;
+            // Pick a random tile and see if you can reduce the entropy, by looking at the tiles next to it
 
-            for (int y = yIndex; y < Height; y++)
+            var selectedCell = _board.FirstOrDefault(c => c.X == x && c.Y == y);
+            
+            if (selectedCell != null)
             {
-                for (int x = xIndex; x < Width; x++)
+                // -------------------------------------------------------------------
+                // TEST ONLY 
+                selectedCell.Tile = new LineTile(x, y);
+                // -------------------------------------------------------------------
+
+                // get surrounded cells
+                var leftCell = _board.FirstOrDefault(c => c.X == x - 1 && c.Y == y);
+                var rightCell = _board.FirstOrDefault(c => c.X == x + 1 && c.Y == y);
+                var topCell = _board.FirstOrDefault(c => c.X == x && c.Y == y - 1);
+                var bottomCell = _board.FirstOrDefault(c => c.X == x && c.Y == y + 1);
+
+                // if we have a tile on the left, we can check if it has a tile attached
+                if (leftCell != null)
                 {
-                    var selectedTile = GetTile(x, y);
-
-                    if (selectedTile != null)
+                    if (leftCell.Tile != null)
                     {
-                        // Get surrounding tiles
+                        // we have a tile in the left hand side and we may be able to reduce our entropy
+                        var leftCellRightEdge = leftCell.Tile.Sides.FirstOrDefault(f => f.Side == SideName.Right);
 
-                        // Left tile 
-                        var leftTile = GetTile(x - 1, y);
-
-                        // Right tile 
-                        var rightTile = GetTile(x + 1, y);
-
-                        // Top tile 
-                        var topTile = GetTile(x, y + 1);
-
-                        // Bottom tile 
-                        var bottomTile = GetTile(x, y - 1);
-
-                        if (leftTile != null)
+                        if (leftCellRightEdge != null)
                         {
-                            // we have a left tile and so what constraints do I have?
-                            var rightTest = leftTile.Sides.FirstOrDefault(s => s.Side == SideName.Right);
-
-                            if (rightTest != null)
+                            // Get the edge of the cells tile and see what potentials we have
+                            if (leftCellRightEdge.Connectable)
                             {
-                                if (rightTest.Connectable)
-                                {
-                                    var test = rightTest.PossibleConnections;
-                                }
+                                var partentials = leftCellRightEdge.PossibleConnections.ToList();
                             }
                         }
                     }
+                    else
+                    {
+                        // Nothing in the neighbouring cell so that side can be anything
+                        selectedCell.HandleCollapse(SideName.Left, "Any");
+                    }
                 }
-            }
-        }
 
-        private TileBase GetTile(int x, int y)
-        {
-            return _board.FirstOrDefault(tile => tile.XLocation == x && tile.YLocation == y);
+                Debug.WriteLine("TEST");
+            }
         }
     }
 }

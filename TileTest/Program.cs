@@ -3,7 +3,7 @@ class Program
 {
     static void Main(string[] args)
     {
-        var board = new GameBoard(10, 10);
+        var board = new GameBoard(3, 3);
 
         System.Console.WriteLine("Getting here");
     }
