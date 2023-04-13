@@ -2,6 +2,6 @@
 {
     public enum TileTypes
     {
-        Line, Curve, T, Blank, Any
+        LineTile, CurveTile, TTile, BlankTile, CrossTile, MidTile, NotDefined
     }
 }

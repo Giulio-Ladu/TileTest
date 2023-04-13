@@ -6,9 +6,9 @@
 
         public bool Connectable { get; private set; }
 
-        public List<string> PossibleConnections { get; private set; }
+        public List<TileTypes> PossibleConnections { get; private set; }
 
-        public TileSide(SideName side, bool connectable, List<string> possibleConnections)
+        public TileSide(SideName side, bool connectable, List<TileTypes> possibleConnections)
         {
             Side = side;
             Connectable = connectable;
@@ -17,13 +17,7 @@
 
         public string GetRandomTileSet()
         {
-            if (PossibleConnections.Count > 0)
-            {
-                var rnd = new Random((int)DateTime.Now.Ticks);
-                return PossibleConnections[rnd.Next(PossibleConnections.Count)];
-            }
-
-            return string.Empty;
+            throw new NotImplementedException();
         }
     }
 }

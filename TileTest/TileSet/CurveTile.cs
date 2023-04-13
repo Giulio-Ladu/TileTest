@@ -2,19 +2,23 @@
 {
     public class CurveTile : TileBase
     {
-        public CurveTile(int xLocation, int yLocation) : base(xLocation, yLocation)
+        public override List<string> DrawTile()
         {
-            
+            var result = new List<string>();
+
+            result.Add("     ");
+            result.Add("--   ");
+            result.Add("  |  ");
+
+            return result;
         }
 
         protected override void GenerateSideData()
         {
-            Sides.Add(new TileSide(SideName.Left, true, _temp));
-            Sides.Add(new TileSide(SideName.Top, true, _temp));
-            Sides.Add(new TileSide(SideName.Right, true, _blank));
-            Sides.Add(new TileSide(SideName.Bottom, true, _blank));
-            Sides.Add(new TileSide(SideName.Front, true, _blank));
-            Sides.Add(new TileSide(SideName.Back, true, _blank));
+            Sides.Add(new TileSide(SideName.Left, true, new List<TileTypes> { TileTypes.LineTile, TileTypes.TTile, TileTypes.CrossTile }));
+            Sides.Add(new TileSide(SideName.Top, true, new List<TileTypes> { TileTypes.BlankTile }));
+            Sides.Add(new TileSide(SideName.Right, true, new List<TileTypes> { TileTypes.BlankTile }));
+            Sides.Add(new TileSide(SideName.Bottom, true, new List<TileTypes> { TileTypes.TTile, TileTypes.CrossTile }));
         }
     }
 }
